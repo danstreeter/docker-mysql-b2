@@ -9,6 +9,8 @@ DB_HOST=${DB_HOST:-db}
 
 TMPDIR=/tmp/backups
 
+mkdir -p ${TMPDIR}
+
 if [ -z "${B2_ACCOUNT_ID}" ]; then
     echo "no B2_ACCOUNT_ID found -> EXIT"
     exit 1
@@ -25,7 +27,7 @@ if [ $? -eq 0 ]; then
 	  TIMESTAMP=$(date -u +"%Y%m%d%H%M%S")
 	  TARGET=db_backup_${TIMESTAMP}.gz
 	  
-	  echo -n "Backup 'b2://${B2_ACCOUNT_ID}@{B2_BUCKET}/${B2_TARGET_DIR}/${TARGET}' of database(s) from ${DB_HOST}: ["
+	  echo -n "Backup 'b2://{B2_BUCKET}/${B2_TARGET_DIR}/${TARGET}' of database(s) from ${DB_HOST}: ["
 	
 	  mysqldump -A -h $DB_HOST -u$DB_USER -p$DB_PASSWORD | gzip > "${TMPDIR}/${TARGET}"
 	  if [ $? -eq 0 ]; then
