@@ -5,7 +5,7 @@ MySQL dump to Backblaze's b2 storage.
 
 ### Environment Variables
 
-* `DB_USER`: username for the database
+* `DB_USER`: username for the database 
 * `DB_PASSWORD`: password for the database
 * `DB_HOST`: hostname/ip of the database server
 * `DB_DUMP_FREQ`: How often to do a dump, in minutes. Defaults to 1440 minutes, or once per day.

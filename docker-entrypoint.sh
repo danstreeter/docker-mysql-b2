@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 
 DB_DUMP_FREQ=${DB_DUMP_FREQ:-1440}
 B2_TARGET_DIR=${B2_TARGET_DIR:-backup}
 DB_USER=${DB_USER:-cattle}
-DB_PASS=${DB_PASS:-cattle}
+DB_PASSWORD=${DB_PASS:-cattle}
 
-DB_SERVER=${DB_SERVER:-db}
+DB_HOST=${DB_HOST:-db}
 
 TMPDIR=/tmp/backups
 
@@ -25,9 +25,9 @@ while true; do
   TIMESTAMP=$(date -u +"%Y%m%d%H%M%S")
   TARGET=db_backup_${TIMESTAMP}.gz
   
-  echo -n "Backup '${B2_TARGET_DIR}/${TARGET}' of database(s) from ${DB_SERVER}: ["
+  echo -n "Backup 'b2://${B2_TARGET_DIR}/${TARGET}' of database(s) from ${DB_HOST}: ["
 
-  mysqldump -A -h $DB_SERVER -u$DB_USER -p$DB_PASS | gzip > "${TMPDIR}/${TARGET}"
+  mysqldump -A -h $DB_HOST -u$DB_USER -p$DB_PASSWORD | gzip > "${TMPDIR}/${TARGET}"
   if [ $? -eq 0 ]
   then
     echo -n "DUMP_SUCCESS"
