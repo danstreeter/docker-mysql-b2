@@ -1,16 +1,11 @@
-# rancher server backup image
-FROM alpine:3.4
-MAINTAINER software@tradertools.com
+FROM alpine:3.5
+MAINTAINER Mitchell Hewes <me@mitcdh.com>
 
-# install the necessary client
-RUN apk add --update mysql-client bash py-pip samba-client && \
+RUN apk add --update mysql-client py-pip && \
     rm -rf /var/cache/apk/* && \
-    touch /etc/samba/smb.conf && \
-    pip install awscli
+    pip install b2
 
-# install the entrypoint
-COPY entrypoint /entrypoint
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
-# start
-ENTRYPOINT ["/entrypoint"]
+CMD ["docker-entrypoint.sh"]
 
