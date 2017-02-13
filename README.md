@@ -12,6 +12,7 @@ MySQL dump to Backblaze's b2 storage.
 * `B2_TARGET_DIR`: b2 target prefix e.g. backups
 * `B2_ACCOUNT_ID`: b2 account id
 * `B2_APPLICATION_KEY`: b2 application key
+* `B2_BUCKET`: b2 bucket to use
 
 ### Usage
 ````
