@@ -7,5 +7,5 @@ RUN apk add --update mysql-client py-pip && \
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
-CMD ["docker-entrypoint.sh"]
+CMD ["/usr/local/bin/docker-entrypoint.sh"]
 
