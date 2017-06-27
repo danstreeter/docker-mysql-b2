@@ -26,10 +26,10 @@ if [ $? -eq 0 ]; then
 	while true; do
 	  TIMESTAMP=$(date -u +"%Y%m%d%H%M%S")
 	  TARGET=db_backup_${TIMESTAMP}.gz
-	  
+
 	  echo -n "Backup 'b2://${B2_BUCKET}/${B2_TARGET_DIR}/${TARGET}' of database(s) from ${DB_HOST}: ["
-	
-	  mysqldump -A -h $DB_HOST -u$DB_USER -p$DB_PASSWORD | gzip > "${TMPDIR}/${TARGET}"
+
+	  mysqldump -A --opt --skip-lock-tables --skip-add-locks --single-transaction --routines -h $DB_HOST -u$DB_USER -p$DB_PASSWORD | gzip > "${TMPDIR}/${TARGET}"
 	  if [ $? -eq 0 ]; then
 	    echo -n "DUMP_SUCCESS"
 	    b2 upload-file --noProgress "${B2_BUCKET}" "${TMPDIR}/${TARGET}" "${B2_TARGET_DIR}/${TARGET}" >/dev/null
