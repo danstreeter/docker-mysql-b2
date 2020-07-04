@@ -1,13 +1,19 @@
 #!/bin/sh
 
-DB_DUMP_FREQ=${DB_DUMP_FREQ:-1440}
-B2_TARGET_DIR=${B2_TARGET_DIR:-backup}
-DB_USER=${DB_USER:-cattle}
-DB_PASSWORD=${DB_PASSWORD:-cattle}
+BACKUP_DB_HOST=${BACKUP_DB_HOST:-db}
+BACKUP_DB_USER=${BACKUP_DB_USER:-cattle}
+BACKUP_DB_PASSWORD=${BACKUP_DB_PASSWORD:-cattle}
+BACKUP_DB_NAME=${BACKUP_DB_NAME:-dbname}
 
-DB_HOST=${DB_HOST:-db}
+B2_ACCOUNT_ID=${B2_ACCOUNT_ID}
+B2_APPLICATION_KEY=${B2_APPLICATION_KEY}
+BACKUP_FREQ=${BACKUP_FREQ:-1440}
+B2_BUCKET=${B2_BUCKET:-bucket}
+B2_TARGET_DIR=${B2_TARGET_DIR:-backup}
 
 TMPDIR=/tmp/backups
+DATE=`date +%Y-%m-%d-%H%M`
+TARGET=${DATE}_${TARGET_FILENAME:-$BACKUP_DB_NAME}.sql
 
 mkdir -p ${TMPDIR}
 
@@ -24,15 +30,14 @@ fi
 b2 authorize-account ${B2_ACCOUNT_ID} ${B2_APPLICATION_KEY}
 if [ $? -eq 0 ]; then
 	while true; do
-	  TIMESTAMP=$(date -u +"%Y%m%d%H%M%S")
-	  TARGET=db_backup_${TIMESTAMP}.gz
 
-	  echo -n "Backup 'b2://${B2_BUCKET}/${B2_TARGET_DIR}/${TARGET}' of database(s) from ${DB_HOST}: ["
+	  echo -n "${DATE} - Backup 'b2://${B2_BUCKET}/${B2_TARGET_DIR}/${TARGET}' of database(s) from ${BACKUP_DB_HOST}: ["
 
-	  mysqldump -A --opt --skip-lock-tables --skip-add-locks --single-transaction --routines -h $DB_HOST -u$DB_USER -p$DB_PASSWORD | gzip > "${TMPDIR}/${TARGET}"
+	  mysqldump --opt --skip-lock-tables --skip-add-locks --single-transaction --routines -h ${BACKUP_DB_HOST} -u${BACKUP_DB_USER} -p${BACKUP_DB_PASSWORD} ${BACKUP_DB_NAME} > "${TMPDIR}/${TARGET}"
 	  if [ $? -eq 0 ]; then
 	    echo -n "DUMP_SUCCESS"
-	    b2 upload-file --noProgress "${B2_BUCKET}" "${TMPDIR}/${TARGET}" "${B2_TARGET_DIR}/${TARGET}" >/dev/null
+		gzip ${TMPDIR}/${TARGET}
+	    b2 upload-file --noProgress "${B2_BUCKET}" "${TMPDIR}/${TARGET}.gz" "${B2_TARGET_DIR}/${TARGET}.gz" >/dev/null
 	    if [ $? -eq 0 ]; then
 	      echo " | UPLOAD_SUCCESS]"
 	    else
@@ -41,8 +46,8 @@ if [ $? -eq 0 ]; then
 	  else
 	    echo "DUMP_FAILURE]"
 	  fi
-	  /bin/rm "${TMPDIR}/${TARGET}" >/dev/null 2>&1
-	  sleep $(($DB_DUMP_FREQ*60))
+	  /bin/rm "${TMPDIR}/${TARGET}.gz" >/dev/null 2>&1
+	  sleep $((${BACKUP_FREQ}*60))
 	done
 else
 	echo "b2 account authorization failure"
