@@ -30,6 +30,8 @@ fi
 b2 authorize-account ${B2_ACCOUNT_ID} ${B2_APPLICATION_KEY}
 if [ $? -eq 0 ]; then
 	while true; do
+	# Additional authentication call here to prevent timeout
+	b2 authorize-account ${B2_ACCOUNT_ID} ${B2_APPLICATION_KEY}
 
 	  echo -n "${DATE} - Backup 'b2://${B2_BUCKET}/${B2_TARGET_DIR}/${TARGET}' of database(s) from ${BACKUP_DB_HOST}: ["
 
